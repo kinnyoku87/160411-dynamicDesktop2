@@ -26,6 +26,8 @@ package view_aa.desktop
 		public var isInitBlur:Boolean;
 		
 		public var prevScale:Number;
+		public var initScale:Number = 1.0;
+		public var initX:Number = 0.0;
 		
 		
 		

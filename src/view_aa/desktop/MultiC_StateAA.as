@@ -20,6 +20,7 @@ package view_aa.desktop
 	import model.DesktopManager;
 	import model.DesktopVo;
 	
+	import view_aa.Entry_ViewAA;
 	import view_aa.ViewConfig;
 
 	// 多桌面切换，两侧加入自动滚屏功能
@@ -348,7 +349,7 @@ package view_aa.desktop
 		
 		private function onTouchCompleted(e:AEvent):void{
 			
-			this.getFusion().setState(new Desktop_StateAA());
+			this.getFusion().setState(new Entry_ViewAA.desktopStateType);
 			
 			DesktopManager.setDesktopVoToLast(desktopImg.m_vo);
 			

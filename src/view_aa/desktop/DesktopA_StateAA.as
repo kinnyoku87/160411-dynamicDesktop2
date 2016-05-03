@@ -25,7 +25,7 @@ package view_aa.desktop
 	import view_aa.ViewConfig;
 	import view_aa.abs.Base_StateAA;
 	
-public class Desktop_StateAA extends Base_StateAA {
+public class DesktopA_StateAA extends Base_StateAA {
 	
 	override public function onEnter():void{
 		var stateFN:StateFusionAA;
@@ -76,6 +76,7 @@ public class Desktop_StateAA extends Base_StateAA {
 	
 	public var m_tipA:FusionAA;
 	public var m_tipB:FusionAA;
+	public var m_tipC:FusionAA;
 	public var m_flagsTip:int; // 1gotoNext,2gotoPrev,3switch
 	public var m_finished:Boolean;
 	
@@ -154,21 +155,6 @@ public class Desktop_StateAA extends Base_StateAA {
 		this.doKillTipsAll();
 	}
 	
-/*	protected function doGotoNewDesktop( isGotoNext:Boolean ) : void {
-		var vo_A:DesktopVo;
-		
-		m_flagsTip = isGotoNext ? 1 : 2;
-		
-		vo_A = isGotoNext ? DesktopManager.getNextVo() : DesktopManager.getPrevVo();
-		if(vo_A) {
-			this.doKillTips(isGotoNext);
-			this.getFusion().setState(new PageSelect_StateAA(isGotoNext, vo_A));
-		}
-		else {
-			this.doKillTipsAll();
-		}
-	}*/
-	
 	private function onShowTips(e:NTouchEvent):void{
 		var touch_A:Touch;
 		var img_A:ImageAA;
@@ -176,6 +162,11 @@ public class Desktop_StateAA extends Base_StateAA {
 		
 		touch_A = e.touch;
 		target_A = e.target as NodeAA;
+		
+		
+		DesktopManager.isLeft = (target_A.userData == "A");
+//		trace(DesktopManager.isLeft);
+		
 		
 		m_tipFN = new FusionAA;
 		this.getFusion().addNode(m_tipFN);
@@ -223,11 +214,31 @@ public class Desktop_StateAA extends Base_StateAA {
 //		img_A.scaleX = img_A.scaleY = 1.35;
 		m_tipB.addNode(img_A);
 		
+		// tip C
+		m_tipC = new FusionAA;
+		m_tipFN.addNode(m_tipC);
+		if(DesktopManager.isLeft) {
+			m_tipC.x = Y_GAP2/2;
+		}
+		else {
+			m_tipC.x = -Y_GAP2/2;
+		}
+		//trace(m_tipC.x);
+		TweenMachine.from(m_tipC, ViewConfig.DURA0, {x:0, alpha:0});
 		
+		//		img_A = new ImageAA;
+		//		img_A.textureId = "common/img/arrow_down.png";
+		//		img_A.pivotX = img_A.sourceWidth / 2;
+		//		img_A.pivotY = img_A.sourceHeight / 2;
+		//		m_tipB.addNode(img_A);
+		//		img_A.y = Y_GAP;
 		
-		
-		DesktopManager.isLeft = (target_A.userData == "A");
-		//trace(DesktopManager.isLeft);
+		img_A = new ImageAA;
+		img_A.textureId = "common/img/idle-icon.png";
+		img_A.pivotX = img_A.sourceWidth / 2;
+		img_A.pivotY = img_A.sourceHeight / 2;
+		//		img_A.scaleX = img_A.scaleY = 1.35;
+		m_tipC.addNode(img_A);
 		
 		// 层叠翻页
 		this.doMakeDesktopList();
@@ -298,7 +309,8 @@ public class Desktop_StateAA extends Base_StateAA {
 			m_viewList = new <Desktop_CompAA>[];
 			m_numItems = data.length;
 			
-			// scaleY
+//			trace(m_numItems);
+			
 			while(i<m_numItems){
 				vo = data[i];
 				
@@ -309,14 +321,14 @@ public class Desktop_StateAA extends Base_StateAA {
 					//stateFN.scaleX = stateFN.scaleY = 1 - (m_numItems - 1 - i)*0.1;
 					
 					ratio_A = AMath.calcRatio(i,0,m_numItems-1);
-//					state_A.initScale = stateFN.scaleY = ratio_A*0.05 + 0.95;
+					//state_A.initScale = stateFN.scaleY = ratio_A*0.05 + 0.95;
 					stateFN.y = 1920/2;
 					
 				}
 				else {
 					stateFN = desktopImg.getFusion();
 					state_A = desktopImg;
-//					state_A.initScale = 1.0;
+					//state_A.initScale = 1.0;
 				}
 				
 				m_viewList[i] = state_A;
@@ -328,7 +340,6 @@ public class Desktop_StateAA extends Base_StateAA {
 			m_viewList.push(desktopImg);
 		}
 		
-		// coordX
 		i = 0;
 		while(i<m_numItems){
 			state_A = m_viewList[i];
@@ -340,42 +351,20 @@ public class Desktop_StateAA extends Base_StateAA {
 			else {
 				ratio_A = AMath.calcRatio(i,0,m_numItems-1);
 			}
-//			if(DesktopManager.isLeft){
+			if(DesktopManager.isLeft){
 //				state_A.initX = stateFN.x = -(m_numItems-1-i)*15*(ratio_A * 0.4+0.6) + 1080/2;
-//			}
-//			else {
-//				state_A.initX = stateFN.x = (m_numItems-1-i)*15*(ratio_A * 0.4+0.6) + 1080/2;
-//			}
-//			if(DesktopManager.isLeft){
-//				state_A.initX = stateFN.x = -(m_numItems-1-i)*15*(ratio_A * 0.6+0.4) + 1080/2;
-//			}
-//			else {
-//				state_A.initX = stateFN.x = (m_numItems-1-i)*15*(ratio_A * 0.6+0.4) + 1080/2;
-//			}
-			if(i == m_numItems - 1){
-				state_A.initX = stateFN.x = (DesktopManager.isLeft ? -0 : 0) + 1080/2;
-			}
-			else if(i == m_numItems - 2){
-				state_A.initX = stateFN.x = (DesktopManager.isLeft ? -40 : 40) + 1080/2;
-			}
-			else if(i == m_numItems - 3){
-				state_A.initX = stateFN.x = (DesktopManager.isLeft ? -70 : 70) + 1080/2;
-			}
-			else if(i == m_numItems - 4){
-				state_A.initX = stateFN.x = (DesktopManager.isLeft ? -80 : 80) + 1080/2;
+				state_A.initX = stateFN.x = 1080/2;
 			}
 			else {
-				if(DesktopManager.isLeft){
-					state_A.initX = stateFN.x = -(m_numItems-5-i)*15*(ratio_A * 0.6+0.4) + 1080/2- 80;
-				}
-				else {
-					state_A.initX = stateFN.x = (m_numItems-5-i)*15*(ratio_A * 0.6+0.4) + 1080/2 + 80;
-				}
+//				state_A.initX = stateFN.x = (m_numItems-1-i)*15*(ratio_A * 0.4+0.6) + 1080/2;
+				state_A.initX = stateFN.x = 1080/2;
 			}
+			
+			
 			i++;
 		}
-		
-		TweenMachine.to(m_fusion, 0.15, {x:DesktopManager.isLeft ? ViewConfig.DESKTOP_LIST_OFFSET_X: -ViewConfig.DESKTOP_LIST_OFFSET_X});
+	
+		//TweenMachine.to(m_fusion, 0.15, {x:DesktopManager.isLeft ? ViewConfig.DESKTOP_LIST_OFFSET_X: -ViewConfig.DESKTOP_LIST_OFFSET_X});
 	}
 	
 	private function doRemoveDesktopList() : void {

@@ -1,11 +1,8 @@
 package view_aa.desktop
 {
-	import com.greensock.easing.FastEase;
-	
 	import d2armor.activity.Touch;
 	import d2armor.animate.ATween;
 	import d2armor.animate.TweenMachine;
-	import d2armor.animate.easing.Quad;
 	import d2armor.display.FusionAA;
 	import d2armor.display.ImageAA;
 	import d2armor.display.NodeAA;
@@ -13,7 +10,6 @@ package view_aa.desktop
 	import d2armor.display.StateFusionAA;
 	import d2armor.events.AEvent;
 	import d2armor.utils.AMath;
-	import d2armor.utils.MathUtil;
 	
 	import model.DesktopManager;
 	import model.DesktopVo;
@@ -22,7 +18,7 @@ package view_aa.desktop
 	import view_aa.ViewConfig;
 
 	// 多桌面切换，迭代版本
-	public class MultiB_StateAA extends StateAA
+	public class MultiD_StateAA extends StateAA
 	{
 		
 		public function get value() : Number {
@@ -30,22 +26,24 @@ package view_aa.desktop
 		}
 		
 		public function set value( v:Number ) : void {
-			this.setValue(v);
+			this.setValue(v, false);
 		}
 		
-		public function setValue( v:Number ) : void {
+		public function setValue( v:Number, hasTween:Boolean ) : void {
 			var i:int;
 			var ratio_A:Number;
 			var index_A:int;
 			var value_B:Number;
 			var node_A:NodeAA;
 			var state_A:Desktop_CompAA;
-			var scale_A:Number;
+			var scale_X:Number;
+			var scale_Y:Number;
 			var prevX:Number;
 			var currX:Number;
 			var startIndex:int;
 			var baseScale:Number;
 			var offset_A:Number;
+			var ratio_B:Number;
 			
 			m_currValue = v;
 
@@ -62,15 +60,29 @@ package view_aa.desktop
 			//ratio_A = AMath.calcRatio(m_currValue, 0, m_numItems);
 			baseScale = 1 - m_currValue * 0.03;
 			
+			//trace(baseScale);
+			//trace(m_currValue);
+			
+			ratio_B = AMath.calcRatio(m_currValue, m_numItems - 1, m_numItems);
+			ratio_B = AMath.clamp(ratio_B, 0, 1);
+//			trace(ratio_B);
 			i = 0;
 			while(i<m_numItems){
 				state_A = m_viewList[i];
 				state_A.prevScale = state_A.getFusion().scaleX;
-				scale_A = (baseScale + i * 0.03) * BASE_ITEM_SCALE;
-//				if(m_currValue > m_numItems - 1) {
-//					scale_A = scale_A + ratio_B * (state_A.initScale - scale_A);
-//				}
-				state_A.getFusion().scaleX = state_A.getFusion().scaleY = scale_A;
+				scale_X = scale_Y = (baseScale + i * 0.03) * BASE_ITEM_SCALE;
+				if(m_currValue > m_numItems - 1) {
+					scale_X = scale_X + ratio_B * (1 - scale_X);
+					scale_Y = scale_Y + ratio_B * (state_A.initScale - scale_Y);
+				}
+				
+				if(hasTween){
+					TweenMachine.to(state_A.getFusion(), ViewConfig.DURA5, {scaleX:scale_X, scaleY:scale_Y});
+				}
+				else {
+					state_A.getFusion().scaleX = scale_X;
+					state_A.getFusion().scaleY = scale_Y;
+				}
 				
 				// 偏移值
 				offset_A = i-m_currValue + 0.55;
@@ -80,11 +92,19 @@ package view_aa.desktop
 //				if(offset_A < -3){
 //					currX =  -2000;
 //				}
-				if(offset_A < -3 || offset_A > 2){
+				if(offset_A < -5 || offset_A > 2){
 					state_A.getFusion().visible = false;
 				}
 				else {
 					state_A.getFusion().visible = true;
+					if(offset_A >= -5 && offset_A < -4){
+						ratio_A = AMath.calcRatio(offset_A, -5, -4);
+						currX = ratio_A * 25 + 0;
+					}
+					if(offset_A >= -4 && offset_A < -3){
+						ratio_A = AMath.calcRatio(offset_A, -4, -3);
+						currX = ratio_A * 25 + 25;
+					}
 					if(offset_A >= -3 && offset_A < -2){
 						ratio_A = AMath.calcRatio(offset_A, -3, -2);
 						currX = ratio_A * 50 + 50;
@@ -106,12 +126,25 @@ package view_aa.desktop
 						ratio_A = AMath.calcRatio(offset_A, 1, 2);
 						currX = ratio_A * 500 +  1100;
 					}
-					state_A.getFusion().x = DesktopManager.isLeft ? currX + 220 : -currX + 620 + 220;
+					currX = DesktopManager.isLeft ? currX + 220 : -currX + 620 + 220;
+					if(m_currValue > m_numItems - 1) {
+						currX = currX + ratio_B * (state_A.initX - currX);
+//						currX = currX + ratio_B * (state_A.initX - currX + (DesktopManager.isLeft ? ViewConfig.DESKTOP_LIST_OFFSET_X : -ViewConfig.DESKTOP_LIST_OFFSET_X));
+					}
+					
+					if(hasTween){
+						TweenMachine.to(state_A.getFusion(), ViewConfig.DURA5, {x:currX});
+					}
+					else {
+						state_A.getFusion().x = currX;
+					}
+					
 				}
 				i++;
 			}
 			
 			this.desktopImg = (m_viewList[index_A] as Desktop_CompAA);
+			
 		}
 		
 		
@@ -146,10 +179,10 @@ package view_aa.desktop
 			m_totalW = ITEM_GAP_X * m_numItems - this.getRoot().getWindow().rootWidth + 300;
 			
 //			TweenMachine.to(m_fusion, 0.15, {x:m_startX});
-			TweenMachine.to(m_fusion, 0.15, {x:0});
+//			TweenMachine.to(m_fusion, ViewConfig.DURA0, {x:0});
 			
+//			m_fusion.x = 0;
 			m_fusion.y = (this.getRoot().getWindow().rootHeight) / 2;
-			
 			
 			prevValue = DesktopManager.index;
 			
@@ -162,7 +195,7 @@ package view_aa.desktop
 				state_A = m_viewList[i];
 				state_A.getFusion().y = 0;
 				
-				tween_A = TweenMachine.from(state_A.getFusion(), ViewConfig.DURA4, {scaleX:state_A.prevScale, scaleY:state_A.prevScale});
+//				tween_A = TweenMachine.from(state_A.getFusion(), ViewConfig.DURA4, {scaleX:state_A.prevScale, scaleY:state_A.prevScale});
 				i++;
 			}
 			
@@ -215,15 +248,16 @@ package view_aa.desktop
 			
 			if(DesktopManager.isLeft) {
 				ratio_A = AMath.calcRatio(m_touchA.rootX, 1080 - START_X, START_X);
-				value_A = ratio_A * m_numItems;
 			}
 			else {
 				ratio_A = AMath.calcRatio(m_touchA.rootX, START_X, 1080 - START_X);
-				value_A = ratio_A * m_numItems;
 			}
-			
+			value_A = ratio_A * (m_numItems + 1);
+			if(value_A > m_numItems - 1) {
+				value_A = m_numItems - 1 + AMath.calcRatio(value_A, m_numItems - 1, m_numItems + 1) * 1;
+			}
 			if(!hasTween){
-				this.setValue(value_A);
+				this.setValue(value_A, true);
 			}
 			else {
 				//trace(value_A);
@@ -232,7 +266,8 @@ package view_aa.desktop
 					value_A = m_lastValue + (value_A - m_lastValue) * 0.15;
 				}
 				else if(value_A > m_numItems) {
-					value_A = m_numItems + (value_A - m_numItems) * 0.3;
+//					value_A = m_numItems + (value_A - m_numItems) * 0.3;
+					value_A = m_numItems;
 				}
 				
 				

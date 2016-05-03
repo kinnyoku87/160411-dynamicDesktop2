@@ -15,6 +15,7 @@ package view_aa.desktop
 	import model.DesktopManager;
 	import model.DesktopVo;
 	
+	import view_aa.Entry_ViewAA;
 	import view_aa.ViewConfig;
 
 	// 初版
@@ -270,7 +271,7 @@ package view_aa.desktop
 		}
 		
 		private function onTouchCompleted(e:AEvent):void{
-			this.getFusion().setState(new Desktop_StateAA());
+			this.getFusion().setState(new Entry_ViewAA.desktopStateType);
 		}
 		
 	}

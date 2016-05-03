@@ -8,6 +8,8 @@ package view_aa.desktop
 	
 	import model.DesktopManager;
 	import model.DesktopVo;
+	
+	import view_aa.Entry_ViewAA;
 
 	public class PageSelect_StateAA extends StateAA
 	{
@@ -65,7 +67,7 @@ package view_aa.desktop
 		
 		private function onTouchCompleted(e:AEvent):void{
 			
-			this.getFusion().setState(new Desktop_StateAA);
+			this.getFusion().setState(new Entry_ViewAA.desktopStateType);
 			
 		}
 										 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<application xmlns="http://ns.adobe.com/air/application/20.0">
-	<id>desktop-v2.0</id>
-	<filename>desktop-v2.0</filename>
-	<name>desktop-v2.0</name>
+<application xmlns="http://ns.adobe.com/air/application/22.0">
+	<id>desktop-v2.3x5</id>
+	<filename>desktop-v2.3x5</filename>
+	<name>desktop-v2.3x5</name>
 	<versionNumber>1.0.0</versionNumber>
 	
 	<initialWindow>

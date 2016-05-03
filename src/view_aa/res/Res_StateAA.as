@@ -50,6 +50,7 @@ public class Res_StateAA extends StateAA {
 				"common/img/arrow_up.png",
 				"common/img/arrow_down.png",
 				"common/img/email-icon.png",
+				"common/img/idle-icon.png",
 				"common/img/music-icon.png",
 				
 				"common/img/BG.png",
